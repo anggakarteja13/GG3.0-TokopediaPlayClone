@@ -1,6 +1,25 @@
 import { z } from 'zod';
 
-export async function getAllProductValidate(req:any) {
+export async function getProductValidate(req:any) {
+    try {
+        const schema = z.object({
+            params: z.object({
+                productId: z.string({required_error: 'Product ID is required'})
+                    .uuid({ message:'Not a valid ID' })
+            })
+        });
+        await schema.parseAsync({params: req.params});
+
+        return true;
+    } catch (error: any) {
+        const formatedErr = error.issues.map((val: {message:string}) => {
+            return val.message;
+        });
+        return formatedErr;
+    }
+}
+
+export async function getProductListValidate(req:any) {
     try {
         const schema = z.object({
             query: z.object({

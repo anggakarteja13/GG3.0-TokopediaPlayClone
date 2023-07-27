@@ -1,8 +1,8 @@
 import { Router } from 'express';
 const commentRouter = Router();
-import { commentList, addComment } from '../controllers/comment';
+import { getCommentList, addComment } from '../controllers/comment';
 
-commentRouter.get('/:videoId', commentList);
+commentRouter.get('/:videoId', getCommentList);
 commentRouter.post('/', addComment);
 
 export default commentRouter;

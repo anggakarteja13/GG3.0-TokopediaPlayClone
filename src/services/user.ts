@@ -7,7 +7,9 @@ class UserServices {
         const selectQuery = [
             'id',
             'role',
-            'userName'
+            'email',
+            'userName',
+            'imgUrl'
         ];
         const user = await User.findOne({id}, selectQuery);
 

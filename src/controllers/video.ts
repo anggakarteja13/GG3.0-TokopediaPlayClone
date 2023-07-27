@@ -3,11 +3,25 @@ import { Request, Response } from "express";
 import VideoServices from "../services/video";
 import { validateToken } from "../middleware/token";
 import { responseError, responseSuccess } from "../utils/response";
-import { addVideoValidate, getVideosValidate } from "../middleware/video";
+import { addVideoValidate, getVideoValidate, getVideoListValidate } from "../middleware/video";
 
-export async function videoList(req: Request, res: Response) {
+export async function getVideo(req: Request, res: Response) {
     try {
-        const validateData = await getVideosValidate(req);
+        const validateData = await getVideoValidate(req);
+        if (validateData !== true)
+            return responseError(res, 400, validateData);
+
+        const videos = await VideoServices.getVideoById(req.params.videoId);
+        
+        return responseSuccess(res, videos);
+    } catch (error) {
+        return responseError(res, 500, error);
+    }
+}
+
+export async function getVideoList(req: Request, res: Response) {
+    try {
+        const validateData = await getVideoListValidate(req);
         if (validateData !== true)
             return responseError(res, 400, validateData);
 
@@ -17,7 +31,7 @@ export async function videoList(req: Request, res: Response) {
 
         const videos = await VideoServices.getAllVideo(page, limit, search);
         
-        return responseSuccess(res, {data: videos});
+        return responseSuccess(res, videos);
     } catch (error) {
         return responseError(res, 500, error);
     }
@@ -40,7 +54,7 @@ export async function addVideo(req: Request, res: Response) {
         if (validateData !== true)
             return responseError(res, 400, validateData);
 
-        const checkVideo = await VideoServices.getVideo(reqData.videoUrl);
+        const checkVideo = await VideoServices.getVideoByUrl(reqData.videoUrl);
         if (checkVideo)
             return responseError(res, 400, 'VideoUrl is exist');
 

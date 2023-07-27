@@ -1,6 +1,25 @@
 import { z } from 'zod';
 
-export async function getVideosValidate(req:any) {
+export async function getVideoValidate(req:any) {
+    try {
+        const schema = z.object({
+            params: z.object({
+                videoId: z.string({required_error: 'Video ID is required'})
+                    .uuid({ message:'Not a valid ID' })
+            })
+        });
+        await schema.parseAsync({params: req.params});
+
+        return true;
+    } catch (error: any) {
+        const formatedErr = error.issues.map((val: {message:string}) => {
+            return val.message;
+        });
+        return formatedErr;
+    }
+}
+
+export async function getVideoListValidate(req:any) {
     try {
         const schema = z.object({
             query: z.object({

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export async function getAllCommentValidate(req:any) {
+export async function getCommentListValidate(req:any) {
     try {
         const schema = z.object({
             params: z.object({

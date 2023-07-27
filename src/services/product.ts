@@ -3,15 +3,26 @@ import { pagination } from "../utils/functions";
 import { CreateProduct, ProductDocument } from "../types/product";
 
 class ProductServices {
-    static async getProduct(productUrl: string): Promise<ProductDocument|any> {
+    static async getProductById(productId: string): Promise<ProductDocument|any> {
+        const searchQuery = { id: productId };
         const selectQuery = [
             'id',
             'productUrl',
             'imgUrl',
             'title',
-            'price',
+            'price'
         ];
-        const user = await Product.findOne({productUrl}, selectQuery);
+        const user = await Product.findOne(searchQuery, selectQuery);
+
+        return user;
+    }
+
+    static async getProductByUrl(productUrl: string): Promise<ProductDocument|any> {
+        const searchQuery = { productUrl };
+        const selectQuery = [
+            'id',
+        ];
+        const user = await Product.findOne(searchQuery, selectQuery);
 
         return user;
     }
@@ -37,7 +48,7 @@ class ProductServices {
         const count = await Product.countDocuments();
 
         return {
-            products,
+            products: products || [],
             totalPages: Math.ceil(count / limitNum),
             currentPage: pageNum
         };

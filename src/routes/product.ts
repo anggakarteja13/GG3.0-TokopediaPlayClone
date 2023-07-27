@@ -1,8 +1,9 @@
 import { Router } from 'express';
 const productRouter = Router();
-import { productList, addProduct } from '../controllers/product';
+import { getProductList, addProduct, getProduct } from '../controllers/product';
 
-productRouter.get('/:videoId', productList);
+productRouter.get('/:videoId', getProductList);
+productRouter.get('/item/:productId', getProduct);
 productRouter.post('/', addProduct);
 
 export default productRouter;

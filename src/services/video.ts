@@ -5,16 +5,7 @@ import { CreateVideo, VideoDocument } from "../types/video";
 
 class VideoServices {
     static async getVideoById(videoId: string): Promise<{}|any> {
-        const query = {id: videoId};
-        const selectQuery = [
-            'id'
-        ];
-        const video = await Video.findOne(query, selectQuery);
-
-        return video;
-    }
-
-    static async getVideo(videoUrl: string): Promise<{}|any> {
+        const searchQuery = {id: videoId};
         const selectQuery = [
             'id',
             'title',
@@ -24,13 +15,24 @@ class VideoServices {
         ];
         const populateQuery = {
             path: 'userId',
-            select: ['userName'],
+            select: 'userName',
+            localField: 'userId',
+            foreignField: 'id',
             model: User
         };
-        const query = (videoUrl) ? {videoUrl} : {};
         const video = await Video
-            .findOne(query, selectQuery)
+            .findOne(searchQuery, selectQuery)
             .populate(populateQuery);
+
+        return video;
+    }
+
+    static async getVideoByUrl(videoUrl: string): Promise<{}|any> {
+        const searchQuery = { videoUrl };
+        const selectQuery = [
+            'id'
+        ];
+        const video = await Video.findOne(searchQuery, selectQuery);
 
         return video;
     }

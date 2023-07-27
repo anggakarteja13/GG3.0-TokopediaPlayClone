@@ -3,11 +3,11 @@ import VideoServices from "../services/video";
 import CommentServices from "../services/comment";
 import { validateToken } from "../middleware/token";
 import { responseError, responseSuccess } from "../utils/response";
-import { addCommentValidate, getAllCommentValidate } from "../middleware/comment";
+import { addCommentValidate, getCommentListValidate } from "../middleware/comment";
 
-export async function commentList(req: Request, res: Response) {
+export async function getCommentList(req: Request, res: Response) {
     try {
-        const validateData = await getAllCommentValidate(req);
+        const validateData = await getCommentListValidate(req);
         if (validateData !== true)
             return responseError(res, 400, validateData);
 
@@ -17,7 +17,7 @@ export async function commentList(req: Request, res: Response) {
 
         const comment = await CommentServices.getAllComment(req.params.videoId);
         
-        return responseSuccess(res, {data: comment});
+        return responseSuccess(res, comment);
     } catch (error) {
         return responseError(res, 500, error);
     }

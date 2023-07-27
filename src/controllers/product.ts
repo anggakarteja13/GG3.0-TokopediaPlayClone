@@ -4,11 +4,25 @@ import VideoServices from "../services/video";
 import ProductServices from "../services/product";
 import { validateToken } from "../middleware/token";
 import { responseError, responseSuccess } from "../utils/response";
-import { addProductValidate, getAllProductValidate } from "../middleware/product";
+import { addProductValidate, getProductListValidate, getProductValidate } from "../middleware/product";
 
-export async function productList(req: Request, res: Response) {
+export async function getProduct(req: Request, res: Response) {
     try {
-        const validateData = await getAllProductValidate(req);
+        const validateData = await getProductValidate(req);
+        if (validateData !== true)
+            return responseError(res, 400, validateData);
+
+        const product = await ProductServices.getProductById(req.params.productId);
+        
+        return responseSuccess(res, product);
+    } catch (error) {
+        return responseError(res, 500, error);
+    }
+}
+
+export async function getProductList(req: Request, res: Response) {
+    try {
+        const validateData = await getProductListValidate(req);
         if (validateData !== true)
             return responseError(res, 400, validateData);
         
@@ -21,7 +35,7 @@ export async function productList(req: Request, res: Response) {
 
         const product = await ProductServices.getAllProduct(videoId, page, limit);
         
-        return responseSuccess(res, {data: product});
+        return responseSuccess(res, product);
     } catch (error) {
         return responseError(res, 500, error);
     }
@@ -45,7 +59,7 @@ export async function addProduct(req: Request, res: Response) {
             return responseError(res, 400, validateData);
 
         const [checkProduct, checkVideo ] = await Promise.all([
-            ProductServices.getProduct(reqData.productUrl),
+            ProductServices.getProductByUrl(reqData.productUrl),
             VideoServices.getVideoById(reqData.videoId)
         ]);
         if (checkProduct)

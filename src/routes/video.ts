@@ -1,8 +1,9 @@
 import { Router } from 'express';
 const videoRouter = Router();
-import { addVideo, videoList } from '../controllers/video';
+import { addVideo, getVideoList, getVideo } from '../controllers/video';
 
-videoRouter.get('/', videoList);
+videoRouter.get('/', getVideoList);
+videoRouter.get('/:videoId', getVideo);
 videoRouter.post('/', addVideo);
 
 export default videoRouter;

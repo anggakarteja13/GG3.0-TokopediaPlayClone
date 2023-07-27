@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/v1', router);
-app.use('/', (req: Request, res: Response) => {
+app.use('/ping', (req: Request, res: Response) => {
     res.status(200).json({
         status: 'Success',
         statusCode: 200,
