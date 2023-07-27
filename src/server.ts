@@ -3,20 +3,10 @@ import app from './app';
 import { createServer } from 'http';
 import config from './config/config.env';
 
-const port = config.port;
-app.set('port', port);
-app.set('env', config.env);
 
+const { port, env } = config;
 const server = createServer(app);
-server.on('error', onError);
 
-server.listen(port, () => {
-    console.log(`   App is live on localhost:${port} | env ${config.env}`);
-});
-DB.startConnection().then((result) => {
-    if (!result)
-        process.exit(1);
-})
 
 function onError(error: any) {
     if (error.syscall !== 'listen')
@@ -38,3 +28,17 @@ function onError(error: any) {
             throw error;
     }
 }
+
+async function onClose() {
+    if (DB.conn)
+        await DB.conn.close(false);
+}
+
+
+server.on('error', onError);
+server.on('close', onClose);
+server.listen(port, async() => {
+    console.log(`   App is live on localhost:${port} | env ${env}`);
+    const db = await DB.startConnection();
+    if (!db) server.close();
+});
