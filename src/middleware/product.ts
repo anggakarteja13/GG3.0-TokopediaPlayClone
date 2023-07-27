@@ -5,10 +5,8 @@ export async function getAllProductValidate(req:any) {
     try {
         const schema = z.object({
             query: z.object({
-                page: z.number()
-                    .min(constant.page, 'Minimum '+constant.page),
-                limit: z.number()
-                    .min(constant.limit, 'Must be bigger than '+constant.limit)
+                page: z.string().optional(),
+                limit: z.string().optional(),
             }),
             params: z.object({
                 videoId: z.string({ required_error: 'Video Id is required' })

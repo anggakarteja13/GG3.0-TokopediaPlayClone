@@ -12,9 +12,11 @@ export async function videoList(req: Request, res: Response) {
         if (validateData !== true)
             return responseError(res, 400, validateData);
 
-        const { page, limit } = req.query as {page: string|null|undefined, limit: string|null|undefined};
+        const { page, limit, search } = req.query as {
+            page: string|null|undefined, limit: string|null|undefined, search: string|null|undefined
+        };
 
-        const videos = await VideoServices.getAllVideo(page, limit);
+        const videos = await VideoServices.getAllVideo(page, limit, search);
         
         return responseSuccess(res, {data: videos});
     } catch (error) {

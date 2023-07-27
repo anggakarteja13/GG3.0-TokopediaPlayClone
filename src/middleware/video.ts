@@ -5,10 +5,9 @@ export async function getVideosValidate(req:any) {
     try {
         const schema = z.object({
             query: z.object({
-                page: z.number()
-                    .min(constant.page, 'Minimum '+constant.page),
-                limit: z.number()
-                    .min(constant.limit, 'Must be bigger than '+constant.limit)
+                page: z.string().optional(),
+                limit: z.string().optional(),
+                search: z.string().optional()
             }),
         });
         await schema.parseAsync({query: req.query});

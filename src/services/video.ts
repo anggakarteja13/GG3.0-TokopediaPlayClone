@@ -30,10 +30,11 @@ class VideoServices {
         }
     }
 
-    static async getAllVideo(page: string|null|undefined, limit: string|null|undefined): 
+    static async getAllVideo(page: string|null|undefined, limit: string|null|undefined, titleQuery: string|null|undefined): 
         Promise<{data: VideoDocument[], totalPages: number, currentPage: number}|any> {
         try {
             const { pageNum, limitNum, skipNum } = pagination(page, limit);
+            const searchQuery = (titleQuery) ? {title: { $regex: titleQuery, $options: 'i' }} : {};
             const selectQuery = [
                 '_id',
                 'title',
@@ -49,7 +50,7 @@ class VideoServices {
                 model: User
             };
             const videos = await Video
-                .find({}, selectQuery)
+                .find(searchQuery, selectQuery)
                 .populate(populateQuery)
                 .limit(limitNum)
                 .skip(skipNum);
