@@ -1,22 +1,22 @@
 import { z } from 'zod';
 import constant from "../utils/constant";
 
-export async function signUpValidate(req:any) {
-    const body = req.body;
-    Object.keys(body).forEach(i => body[i] = body[i].trim());
+export async function signUpValidate(data:any) {
+    Object.keys(data).forEach(i => data[i] = data[i].trim());
     try {
         const schema = z.object({
             body: z.object({
-                userName: z.string({ required_error: 'userName is required' })
+                userName: z.string({ required_error: 'userName is required', invalid_type_error: 'User Name must be string' })
                     .min(1, 'Minimum 1 character')
                     .max(16, 'Maximum 16 character'),
-                email: z.string({required_error: 'email is required'})
+                email: z.string({ required_error: 'Email is required', invalid_type_error: 'Email must be string'  })
                     .email('Not a valid email'),
-                password: z.string({required_error: 'password is required'}),
-                role: z.enum([constant.merchantRole, constant.userRole])
+                password: z.string({ required_error: 'Password is required', invalid_type_error: 'Password must be string' }),
+                role: z.enum([constant.merchantRole, constant.userRole],
+                    { required_error: 'Role is required', invalid_type_error: 'Invalid Role' })
             }),
         });
-        await schema.parseAsync({body: req.body});
+        await schema.parseAsync({body: data});
 
         return true;
     } catch (error: any) {
@@ -27,18 +27,16 @@ export async function signUpValidate(req:any) {
     }
 }
 
-export async function loginValidate(req:any) {
-    const body = req.body;
-    Object.keys(body).forEach(i => body[i] = body[i].trim());
+export async function loginValidate(data:any) {
+    Object.keys(data).forEach(i => data[i] = data[i].trim());
     try {
         const schema = z.object({
             body: z.object({
-                email: z.string({required_error: 'email is required'})
-                    .email('Not a valid email'),
-                password: z.string({required_error: 'password is required'})
+                email: z.string({ required_error: 'Email is required', invalid_type_error: 'Email must be string'  }),
+                password: z.string({ required_error: 'Password is required', invalid_type_error: 'Password must be string' }),
             }),
         });
-        await schema.parseAsync({body: req.body});
+        await schema.parseAsync({body: data});
 
         return true;
     } catch (error: any) {

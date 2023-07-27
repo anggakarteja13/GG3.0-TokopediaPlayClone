@@ -1,21 +1,22 @@
-import { Schema, Document, model } from "mongoose";
-
-export type CommentDocument = Document & {
-    userId: Schema.Types.ObjectId,
-    videoId: Schema.Types.ObjectId,
-    comment: string
-}
+import { v4 as uuidv4 } from "uuid";
+import { Schema, model } from "mongoose";
+import { CommentDocument } from "../types/comment";
 
 const CommentSchema = new Schema<CommentDocument>(
     {
+        id: {
+            type: String,
+            required: true,
+            default: uuidv4,
+            index: true
+        },
         userId: {
-            type: Schema.Types.ObjectId,
-            unique: true,
+            type: String,
             required: [true, 'Comment User ID is needed'],
             ref: 'User'
         },
         videoId: {
-            type: Schema.Types.ObjectId,
+            type: String,
             index: true,
             required: [true, 'Comment Video ID is needed'],
             ref: 'Video'

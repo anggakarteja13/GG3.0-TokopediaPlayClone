@@ -1,23 +1,22 @@
-import { Schema, Document, model } from "mongoose";
-
-export type ProductDocument = Document & {
-    userId: Schema.Types.ObjectId,
-    videoId: Schema.Types.ObjectId,
-    productUrl: string,
-    imgUrl: string,
-    title: string,
-    price: number
-}
+import { v4 as uuidv4 } from "uuid";
+import { Schema, model } from "mongoose";
+import { ProductDocument } from "../types/product";
 
 const ProductSchema = new Schema<ProductDocument>(
     {
+        id: {
+            type: String,
+            required: true,
+            default: uuidv4,
+            index: true
+        },
         userId: {
-            type: Schema.Types.ObjectId,
+            type: String,
             required: [true, 'Product User ID is needed'],
             ref: 'User'
         },
         videoId: {
-            type: Schema.Types.ObjectId,
+            type: String,
             required: [true, 'Product Video ID is needed'],
             ref: 'Video'
         },

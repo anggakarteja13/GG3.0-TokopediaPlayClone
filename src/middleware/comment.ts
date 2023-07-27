@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import constant from '../utils/constant';
 
 export async function getAllCommentValidate(req:any) {
     try {
         const schema = z.object({
             params: z.object({
-                videoId: z.string({ required_error: 'Video Id is required' })
+                videoId: z.string({required_error: 'Video ID is required'})
+                    .uuid({ message:'Not a valid ID' })
             })
         });
         await schema.parseAsync({params: req.params});
@@ -19,18 +19,17 @@ export async function getAllCommentValidate(req:any) {
     }
 }
 
-export async function addCommentValidate(req:any) {
-    const body = req.body;
-    Object.keys(body).forEach(i => body[i] = body[i].trim());
+export async function addCommentValidate(data:any) {
+    Object.keys(data).forEach(i => data[i] = data[i].trim());
     try {
         const schema = z.object({
             body: z.object({
-                videoId: z.string({required_error: 'Video ID is required'}),
-                userId: z.string({required_error: 'User ID is required'}),
-                comment: z.string()
-            }),
+                videoId: z.string({required_error: 'Video ID is required'})
+                    .uuid({ message:'Not a valid ID' }),
+                comment: z.string({ required_error: 'User ID is required', invalid_type_error: 'Comment must be string' })
+            })
         });
-        await schema.parseAsync({body: req.body});
+        await schema.parseAsync({body: data});
 
         return true;
     } catch (error: any) {

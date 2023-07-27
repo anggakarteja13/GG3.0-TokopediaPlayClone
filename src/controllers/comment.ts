@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CreateComment } from "../types/comment";
+import VideoServices from "../services/video";
 import CommentServices from "../services/comment";
 import { validateToken } from "../middleware/token";
 import { responseError, responseSuccess } from "../utils/response";
@@ -10,11 +10,12 @@ export async function commentList(req: Request, res: Response) {
         const validateData = await getAllCommentValidate(req);
         if (validateData !== true)
             return responseError(res, 400, validateData);
-        const videoId = req.params.id;
 
-        const comment = await CommentServices.getAllComment(videoId);
-        if (!comment)
+        const videoCheck = await VideoServices.getVideoById(req.params.videoId);
+        if (!videoCheck)
             return responseError(res, 404, 'Video ID not found');
+
+        const comment = await CommentServices.getAllComment(req.params.videoId);
         
         return responseSuccess(res, {data: comment});
     } catch (error) {
@@ -23,27 +24,22 @@ export async function commentList(req: Request, res: Response) {
 }
 
 export async function addComment(req: Request, res: Response) {
+    const reqData = req.body;
     try {
         const validateUser = await validateToken(req);
-        if (validateUser === 0)
-            return responseError(res, 401, 'No authorization');
-        else if (validateUser === 1)
-            return responseError(res, 401, 'No token provided');
-        else if (validateUser === 2)
-            return responseError(res, 401, 'Invalid token');
+        switch (validateUser) {
+            case 0:
+                return responseError(res, 401, 'No authorization');
+            case 1:
+                return responseError(res, 401, 'Invalid token');
+        }
 
-        const validateData = await addCommentValidate(req);
+        const validateData = await addCommentValidate(reqData);
         if (validateData !== true)
             return responseError(res, 400, validateData);
 
-        const createData: CreateComment = {
-            userId: req.body.userId,
-            videoId: req.body.videoId,
-            comment: req.body.comment
-        }
-
-        const newVideo = await CommentServices.addComment(createData);
-        return responseSuccess(res, newVideo);
+        const newComment = await CommentServices.addComment(reqData, validateUser.id);
+        return responseSuccess(res, newComment);
     } catch (error) {
         return responseError(res, 500, error);
     }

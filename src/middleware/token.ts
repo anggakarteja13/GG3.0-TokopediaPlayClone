@@ -7,16 +7,14 @@ export function validateToken(req: Request): any | number {
   
     if (!authorization)
         return 0; //need auth
-  
-    const bearerToken = authorization.split(' ');
-    const token = bearerToken[1];
 
+    const [bearer, token] = authorization.split(' ');
     if(!token)
         return 1; //no token provided
 
     const verify = verifyToken(token);
-    if (!verify)
-        return 2; //invalid token
+    if (!verify || !verify.id || !verify.role)
+        return 1; //invalid token
 
     return verify;
 }

@@ -1,6 +1,5 @@
 import constant from "../utils/constant";
 import { Request, Response } from "express";
-import { CreateVideo } from "../types/video";
 import VideoServices from "../services/video";
 import { validateToken } from "../middleware/token";
 import { responseError, responseSuccess } from "../utils/response";
@@ -25,33 +24,27 @@ export async function videoList(req: Request, res: Response) {
 }
 
 export async function addVideo(req: Request, res: Response) {
+    const reqData = req.body;
     try {
         const validateUser = await validateToken(req);
-        if (validateUser === 0)
-            return responseError(res, 401, 'No authorization');
-        else if (validateUser === 1)
-            return responseError(res, 401, 'No token provided');
-        else if (validateUser === 2)
-            return responseError(res, 401, 'Invalid token');
+        switch (validateUser) {
+            case 0:
+                return responseError(res, 401, 'No authorization');
+            case 1:
+                return responseError(res, 401, 'Invalid token');
+        }
         if (validateUser.role === constant.userRole)
             return responseError(res, 403, 'Not enough privillege');
         
-        const validateData = await addVideoValidate(req);
+        const validateData = await addVideoValidate(reqData);
         if (validateData !== true)
             return responseError(res, 400, validateData);
 
-        const createData: CreateVideo = {
-            userId: validateUser._id,
-            thumbnailUrl: req.body.thumbnailUrl,
-            videoUrl: req.body.videoUrl,
-            title: req.body.title
-        }
-
-        const checkVideo = await VideoServices.getVideo(createData.videoUrl);
+        const checkVideo = await VideoServices.getVideo(reqData.videoUrl);
         if (checkVideo)
             return responseError(res, 400, 'VideoUrl is exist');
 
-        const newVideo = await VideoServices.addVideo(createData);
+        const newVideo = await VideoServices.addVideo(reqData, validateUser.id);
         return responseSuccess(res, newVideo);
     } catch (error) {
         return responseError(res, 500, error);

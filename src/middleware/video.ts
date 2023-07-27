@@ -1,13 +1,12 @@
 import { z } from 'zod';
-import constant from '../utils/constant';
 
 export async function getVideosValidate(req:any) {
     try {
         const schema = z.object({
             query: z.object({
-                page: z.string().optional(),
-                limit: z.string().optional(),
-                search: z.string().optional()
+                page: z.coerce.number({ invalid_type_error: 'Page must be number' }).optional(),
+                limit: z.coerce.number({ invalid_type_error: 'Limit must be number' }).optional(),
+                search: z.string({ invalid_type_error: 'Search must be string' }).optional()
             }),
         });
         await schema.parseAsync({query: req.query});
@@ -21,18 +20,18 @@ export async function getVideosValidate(req:any) {
     }
 }
 
-export async function addVideoValidate(req:any) {
-    const body = req.body;
-    Object.keys(body).forEach(i => body[i] = body[i].trim());
+export async function addVideoValidate(data:any) {
+    Object.keys(data).forEach(i => data[i] = data[i].trim());
     try {
         const schema = z.object({
             body: z.object({
-                thumbnailUrl: z.string({required_error: 'Thumbnail URL is required'}),
-                videoUrl: z.string({required_error: 'Video URL is required'}),
-                title: z.string({required_error: 'Title is required'}).max(40)
+                thumbnailUrl: z.string({ required_error: 'Thumbnail URL is required', invalid_type_error: 'Thumbnail URL must be string'}),
+                videoUrl: z.string({ required_error: 'Video URL is required', invalid_type_error: 'Video URL must be string'}),
+                title: z.string({ required_error: 'Title is required', invalid_type_error: 'Title must be string'})
+                    .min(1, 'Title is 1-40 character').max(40, 'Title is 1-40 character')
             }),
         });
-        await schema.parseAsync({body: req.body});
+        await schema.parseAsync({body: data});
 
         return true;
     } catch (error: any) {

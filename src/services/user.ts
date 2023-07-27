@@ -1,77 +1,66 @@
-import DB from "../db";
-import { CreateUser } from "../types/user";
-import User, { UserDocument } from "../models/User";
+import User from "../models/User";
+import { CreateUser, UserDocument } from "../types/user";
+import { hashingPassword } from "../utils/functions";
 
 class UserServices {
-    static async getUserById(_id: string): Promise<UserDocument|any> {
-        try {
-            const selectQuery = [
-                '_id',
-                'role',
-                'userName'
-            ];
-            const user = await User.findOne({_id}, selectQuery);
+    static async getUserById(id: string): Promise<UserDocument|any> {
+        const selectQuery = [
+            'id',
+            'role',
+            'userName'
+        ];
+        const user = await User.findOne({id}, selectQuery);
 
-            if (!user)
-                return user;
-            return {
-                _id: user._id,
-                role: user.role,
-                email: user.email,
-                userName: user.userName
-            };
-        } catch (error) {
-            return {error};
-        }
+        if (!user)
+            return user;
+        return {
+            id: user.id,
+            role: user.role,
+            email: user.email,
+            userName: user.userName
+        };
     }
 
-    static async getUser(email: string|null, userName: string|null): Promise<UserDocument|any> {
-        try {
-            const selectQuery = [
-                '_id',
-                'role',
-                'email',
-                'userName',
-                'password',
-                'imgUrl'
-            ];
-            const query = (!email) ? {userName} : (userName) ? 
-                {$or: [{email}, {userName}]} : {email}
-            const user = await User.findOne(query, selectQuery);
+    static async getUser(email: string, userName?: string): Promise<UserDocument|any> {
+        const selectQuery = [
+            'id',
+            'role',
+            'email',
+            'userName',
+            'password',
+            'imgUrl'
+        ];
+        const query = (!email) ? {userName} : (userName) ? 
+            {$or: [{email}, {userName}]} : {email}
+        const user = await User.findOne(query, selectQuery);
 
-            if(!user)
-                return user;
-            return {
-                _id: user._id,
-                role: user.role,
-                email: user.email,
-                userName: user.userName,
-                password: user.password,
-                imgUrl: user.imgUrl
-            };
-        } catch (error) {
-            return {error};
-        }
+        if(!user)
+            return user;
+        return {
+            id: user.id,
+            role: user.role,
+            email: user.email,
+            userName: user.userName,
+            password: user.password,
+            imgUrl: user.imgUrl
+        };
     }
 
     static async addUser(data: CreateUser): Promise<UserDocument|any> {
-        const session = await DB.conn.startSession();
-        try {
-            session.startTransaction();
-            const user = await User.create(data);
-            await session.commitTransaction();
-            return {
-                _id: user._id,
-                userName: user.userName,
-                email: user.email,
-                role: user.role,
-                imgUrl: user.imgUrl
-            };
-        } catch (error) {
-            await session.abortTransaction();
-            return {error};
-        } finally {
-            await session.endSession();
+        const hashedPass = await hashingPassword(data.password);
+        const createData: CreateUser = {
+            role: data.role,
+            email: data.email,
+            userName: data.userName,
+            password: hashedPass
+        }
+        const user = await User.create(createData);
+        return {
+            id: user.id,
+            userName: user.userName,
+            email: user.email,
+            role: user.role,
+            imgUrl: user.imgUrl
         }
     }
 }

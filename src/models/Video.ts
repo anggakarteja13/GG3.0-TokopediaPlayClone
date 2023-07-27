@@ -1,16 +1,17 @@
-import { Schema, Document, model } from "mongoose";
-
-export type VideoDocument = Document & {
-    userId: Schema.Types.ObjectId,
-    thumbnailUrl: string,
-    videoUrl: string,
-    title: string
-}
+import { v4 as uuidv4 } from "uuid";
+import { Schema, model } from "mongoose";
+import { VideoDocument } from "../types/video";
 
 const VideoSchema = new Schema<VideoDocument>(
     {
+        id: {
+            type: String,
+            required: true,
+            default: uuidv4,
+            index: true
+        },
         userId: {
-            type: Schema.Types.ObjectId,
+            type: String,
             required: true,
             ref: 'User'
         },

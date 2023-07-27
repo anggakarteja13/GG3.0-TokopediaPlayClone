@@ -1,38 +1,27 @@
 import UserServices from "../services/user";
 import { Request, Response } from "express";
 import { createJwtToken } from "../utils/jwt";
-import { CreateUser, LoginUser } from "../types/user";
+import { validatePassword } from "../utils/functions";
 import { loginValidate, signUpValidate } from "../middleware/user";
 import { responseError, responseSuccess } from "../utils/response";
-import { hashingPassword, validatePassword } from "../utils/functions";
 
 export async function signUp(req: Request, res: Response) {
+    const reqData = req.body;
     try {
-        const validate = await signUpValidate(req);
+        const validate = await signUpValidate(reqData);
         if (validate !== true)
             return responseError(res, 400, validate);
-
-        const createData: CreateUser = {
-            email: req.body.email,
-            userName: req.body.userName,
-            role: req.body.role,
-            password: req.body.password,
-            imgUrl: req.body.imgUrl
-        };
         
-        const checkUser = await UserServices.getUser(createData.email, createData.userName);
+        const checkUser = await UserServices.getUser(reqData.email, reqData.userName);
         if (checkUser)
             return responseError(res, 403, 'User with this email or userName is exists');
-        
-        createData.password = await hashingPassword(createData.password);
-        const newUser = await UserServices.addUser(createData);
 
-        const token = createJwtToken(newUser._id, newUser.role);
+        const newUser = await UserServices.addUser(reqData);
 
         const data = {
-            token,
+            token: createJwtToken(newUser.id, newUser.role),
             user: {
-                _id: newUser._id,
+                id: newUser.id,
                 userName: newUser.userName,
                 email: newUser.email,
                 role: newUser.role,
@@ -47,23 +36,21 @@ export async function signUp(req: Request, res: Response) {
 }
 
 export async function login(req: Request, res: Response) {
+    const reqData = req.body;
     try {
-        const validateData = await loginValidate(req);
+        const validateData = await loginValidate(reqData);
         if (validateData !== true)
             return responseError(res, 400, validateData);
 
-        const userData: LoginUser = {
-            email: req.body.email,
-            password: req.body.password
-        };
-
-        const user = await UserServices.getUser(userData.email, null);
+        const user = await UserServices.getUser(reqData.email);
         if (!user)
             return responseError(res, 401, 'Invalid Email or Password');
         
-        const checkPass = await validatePassword(userData.password, user.password);
+        const checkPass = await validatePassword(reqData.password, user.password);
+        console.log(user.password)
         if (!checkPass)
             return responseError(res, 401, 'Invalid Email or Password');
+        delete user.password;
 
         const token = createJwtToken(user.id, user.role);
 

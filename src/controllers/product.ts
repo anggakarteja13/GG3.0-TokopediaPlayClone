@@ -1,10 +1,10 @@
 import constant from "../utils/constant";
 import { Request, Response } from "express";
+import VideoServices from "../services/video";
 import ProductServices from "../services/product";
 import { validateToken } from "../middleware/token";
 import { responseError, responseSuccess } from "../utils/response";
 import { addProductValidate, getAllProductValidate } from "../middleware/product";
-import { CreateProduct } from "../types/product";
 
 export async function productList(req: Request, res: Response) {
     try {
@@ -13,11 +13,13 @@ export async function productList(req: Request, res: Response) {
             return responseError(res, 400, validateData);
         
         const { page, limit } = req.query as {page: string|null|undefined, limit: string|null|undefined};
-        const videoId = req.params.id;
+        const videoId = req.params.videoId;
+
+        const video = await VideoServices.getVideoById(videoId);
+        if (!video)
+            return responseError(res, 404, 'Video ID not found');
 
         const product = await ProductServices.getAllProduct(videoId, page, limit);
-        if (!product)
-            return responseError(res, 404, 'Video ID not found');
         
         return responseSuccess(res, {data: product});
     } catch (error) {
@@ -26,34 +28,32 @@ export async function productList(req: Request, res: Response) {
 }
 
 export async function addProduct(req: Request, res: Response) {
+    const reqData = req.body;
     try {
         const validateUser = await validateToken(req);
-        if (validateUser === 0)
-            return responseError(res, 401, 'No authorization');
-        else if (validateUser === 1)
-            return responseError(res, 401, 'No token provided');
-        else if (validateUser === 2)
-            return responseError(res, 401, 'Invalid token');
+        switch (validateUser) {
+            case 0:
+                return responseError(res, 401, 'No authorization');
+            case 1:
+                return responseError(res, 401, 'Invalid token');
+        }
         if (validateUser.role === constant.userRole)
             return responseError(res, 403, 'Not enough privillege');
         
-        const validateData = await addProductValidate(req);
+        const validateData = await addProductValidate(reqData);
         if (validateData !== true)
             return responseError(res, 400, validateData);
 
-        const createData: CreateProduct = {
-            videoId: req.body.videoId,
-            productUrl: req.body.productUrl,
-            imgUrl: req.body.imgUrl,
-            title: req.body.title,
-            price: req.body.price,
-        }
-
-        const checkVideo = await ProductServices.getProduct(createData.productUrl);
-        if (checkVideo)
+        const [checkProduct, checkVideo ] = await Promise.all([
+            ProductServices.getProduct(reqData.productUrl),
+            VideoServices.getVideoById(reqData.videoId)
+        ]);
+        if (checkProduct)
             return responseError(res, 400, 'Product URL is exist');
+        if (!checkVideo)
+            return responseError(res, 400, 'Video ID is not exist');
 
-        const newVideo = await ProductServices.addProduct(createData);
+        const newVideo = await ProductServices.addProduct(reqData, validateUser.id);
         return responseSuccess(res, newVideo);
     } catch (error) {
         return responseError(res, 500, error);

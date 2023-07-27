@@ -1,15 +1,15 @@
 import { z } from 'zod';
-import constant from '../utils/constant';
 
 export async function getAllProductValidate(req:any) {
     try {
         const schema = z.object({
             query: z.object({
-                page: z.string().optional(),
-                limit: z.string().optional(),
+                page: z.coerce.number({ invalid_type_error: 'Page must be number' }).optional(),
+                limit: z.coerce.number({ invalid_type_error: 'Limit must be number' }).optional(),
             }),
             params: z.object({
-                videoId: z.string({ required_error: 'Video Id is required' })
+                videoId: z.string({ required_error: 'Video ID is required' })
+                    .uuid({ message:'Not a valid ID' })
             })
         });
         await schema.parseAsync({query: req.query, params: req.params});
@@ -23,20 +23,23 @@ export async function getAllProductValidate(req:any) {
     }
 }
 
-export async function addProductValidate(req:any) {
-    const body = req.body;
-    Object.keys(body).forEach(i => body[i] = body[i].trim());
+export async function addProductValidate(data:any) {
+    Object.keys(data).forEach(i => data[i] = data[i].trim());
     try {
         const schema = z.object({
             body: z.object({
-                videoId: z.string({required_error: 'Video ID is required'}),
-                productUrl: z.string({required_error: 'Product URL is required'}),
-                imageUrl: z.string({required_error: 'Image URL is required'}),
-                title: z.string({required_error: 'Title is required'}).max(40),
-                price: z.number({required_error: 'Price is required'})
-            }),
+                videoId: z.string({required_error: 'Video ID is required'})
+                    .uuid({ message:'Not a valid ID' }),
+                productUrl: z.string({required_error: 'Product URL is required', invalid_type_error: 'Product URL must be string'}),
+                imgUrl: z.string({required_error: 'Image URL is required', invalid_type_error: 'Image URL must be string'}),
+                title: z.string({required_error: 'Title is required', invalid_type_error: 'Title must be string'})
+                    .min(1, 'Title is 1-40 character')
+                    .max(40, 'Title is 1-40 character'),
+                price: z.coerce.number({required_error: 'Price is required', invalid_type_error: 'Price must be number'})
+                    .min(1, 'Price must be bigger than 0')
+            })
         });
-        await schema.parseAsync({body: req.body});
+        await schema.parseAsync({body: data});
 
         return true;
     } catch (error: any) {

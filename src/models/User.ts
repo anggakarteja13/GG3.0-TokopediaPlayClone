@@ -1,16 +1,16 @@
-import { Schema, Document, model } from "mongoose";
+import { v4 as uuidv4 } from "uuid";
+import { Schema, model } from "mongoose";
 import constant from "../utils/constant";
-
-export type UserDocument = Document & {
-    role: string,
-    email: string,
-    userName: string,
-    password: string,
-    imgUrl: string
-}
+import { UserDocument } from "../types/user";
 
 const UserSchema = new Schema<UserDocument>(
     {
+        id: {
+            type: String,
+            required: true,
+            default: uuidv4,
+            index: true
+        },
         role: {
             type: String,
             enum: [constant.merchantRole, constant.userRole],
