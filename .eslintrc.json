@@ -1,0 +1,27 @@
+{
+    "env": {
+        "es2021": true,
+        "node": true
+    },
+    "extends": [
+        "standard"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "indent": ["error", 4],
+        "quotes": ["warn", "single"],
+        "prefer-const": "warn",
+        "no-extra-semi": 1,
+        "no-unused-vars": "warn",
+        "no-const-assign": 1,
+        "camelcase": "warn",
+        "comma-dangle": [2, "always-multiline"]
+    }
+}
