@@ -1,4 +1,21 @@
-Postman Link https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay
+Postman -> https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay
+
+Postman ENV -> https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay/environment/15808237-cea1a1bb-b1ab-4f88-80e0-612fc9ba37b9
+
+#How To Run!!!
+- Clear your port & MongoDB connection
+- Clone this repository
+- Setup yarn (if not installed)
+- Use NodeJS v18.16.0
+- create folder named **dist** on rootDir of project
+- set your **.env** according to **.env.example**
+- Run on terminal :
+  - yarn install
+  - yarn build
+  - yarn seed
+  - yarn start
+- Look if there's any error on console
+- Try to hit with Postman (set your port on postman env)
 
 #Users
 
@@ -6,7 +23,7 @@ Postman Link https://www.postman.com/spacecraft-observer-55350351/workspace/toko
 
 ```
 {
-  id: ObjectId
+  _id: ObjectId
   username: string
   email: string
   password: string
@@ -16,9 +33,9 @@ Postman Link https://www.postman.com/spacecraft-observer-55350351/workspace/toko
 }
 ```
 
-## **GET /users**
+## **POST /users/login**
 
-Returns all users in the system.
+Give authorization to user.
 
 - **URL Params**  
   None
@@ -27,140 +44,125 @@ Returns all users in the system.
 - **Headers**  
   Content-Type: application/json
 - **Success Response:**
-- **Code:** 200  
-  **Content:**
-
 ```
 {
-  users: [
-           {<user_object>},
-           {<user_object>},
-           {<user_object>}
-         ]
+  status: "Success",
+  statusCode: 200,
+  data: {
+    token: string,
+    user: {<userData>}
+  }
+}
+```
+- **Error Response:**
+```
+{
+  status: "Error",
+  statusCode: 400,
+  message: <Invalid input value>
+}
+```
+  OR
+```
+{
+  status: "Error",
+  statusCode: 403,
+  message: "User with this email or userName is exists"
 }
 ```
 
-## **GET /users/:id**
+## **POST /users/signup**
 
-Returns the specified user.
+Add new user
 
 - **URL Params**  
-  _Required:_ `id=[integer]`
+  None
 - **Data Params**  
   None
 - **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
+  Content-Type: application/json
 - **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <user_object> }`
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "User doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-## **GET /users/:id/orders**
-
-Returns all Orders associated with the specified user.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-- **Code:** 200  
-  **Content:**
-
 ```
 {
-  orders: [
-           {<order_object>},
-           {<order_object>},
-           {<order_object>}
-         ]
+  status: "Success",
+  statusCode: 200,
+  data: {
+    token: string,
+    user: {<userData>}
+  }
+}
+```
+- **Error Response:**
+```
+{
+  status: "Error",
+  statusCode: 401,
+  message: <Invalid Email or Password>
 }
 ```
 
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "User doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
 
-## **POST /users**
+#Videos
 
-Creates a new User and returns the new object.
+- Video object
+
+```
+{
+  _id: ObjectId
+  userId: ObjectId
+  thumbnailUrl: string
+  videoUrl: string
+  title: string
+  created_at: datetime(iso 8601)
+  updated_at: datetime(iso 8601)
+}
+```
+
+## **GET /videos?page=1&limit=10&search=Keyword**
+
+Returns all videos available
+Video can be search by title
+Added pagination feature
+
+- **URL Params**
+  Query: page, limit, search
+- **Headers**  
+  Content-Type: application/json
+- **Success Response:**
+```
+{
+  status: "Success",
+  statusCode: 200,
+  data: {
+    videos: [{<videoData, userId>}],
+    currentPage: number,
+    totalPage: number
+  }
+}
+```
+
+## **POST /videos**
+
+Add new video by Merchant only
 
 - **URL Params**  
   None
 - **Headers**  
   Content-Type: application/json
-- **Data Params**
-
+  Authorization: Bearer <jwtToken>
+- **Success Response:**
 ```
-  {
-    username: string,
-    email: string
+{
+  status: "Success",
+  statusCode: 200,
+  data: {
+    videos: [<newlyAddedVideo>],
+    currentPage: number,
+    totalPage: number
   }
+}
 ```
 
-- **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <user_object> }`
-
-## **PATCH /users/:id**
-
-Updates fields on the specified user and returns the updated object.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**
-
-```
-  {
-  	username: string,
-    email: string
-  }
-```
-
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <user_object> }`
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "User doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-## **DELETE /users/:id**
-
-Deletes the specified user.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-  - **Code:** 204
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "User doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
 
 #Products
 
@@ -168,353 +170,107 @@ Deletes the specified user.
 
 ```
 {
-  id: integer
-  name: string
-  cost: float(2)
-  available_quantity: integer
+  _id: ObjectId,
+  videoId: ObjectId,
+  productUrl: string,
+  imgUrl: string,
+  title: string,
+  price: number,
   created_at: datetime(iso 8601)
   updated_at: datetime(iso 8601)
 }
 ```
 
-## **GET /products**
+## **Get /products/:videoId**
 
-Returns all products in the system.
+Retrieve all product inside video event
 
 - **URL Params**  
-  None
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json
+  Params: videoId
+  Query: page, limit
 - **Success Response:**
-- **Code:** 200  
-  **Content:**
-
 ```
 {
-  products: [
-           {<product_object>},
-           {<product_object>},
-           {<product_object>}
-         ]
+  status: "Success",
+  statusCode: 200,
+  data: {
+    products: [<productData>],
+    currentPage: number,
+    totalPage: number
+  }
 }
 ```
 
-## **GET /products/:id**
+## **Post /products**
 
-Returns the specified product.
+Add new product for one video
 
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
+- **URL Params**
   None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
+- **Body**
+  videoId, productUrl, imgUrl
+  title, price
 - **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <product_object> }`
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Product doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-## **GET /products/:id/orders**
-
-Returns all Orders associated with the specified product.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-- **Code:** 200  
-  **Content:**
-
 ```
 {
-  orders: [
-           {<order_object>},
-           {<order_object>},
-           {<order_object>}
-         ]
+  status: "Success",
+  statusCode: 200,
+  data: {
+    <newlyAddedProduct>
+  }
 }
 ```
 
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Product doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
 
-## **POST /products**
+#Comments
 
-Creates a new Product and returns the new object.
-
-- **URL Params**  
-  None
-- **Data Params**
-
-```
-  {
-    name: string
-    cost: float(2)
-    available_quantity: integer
-  }
-```
-
-- **Headers**  
-  Content-Type: application/json
-- **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <product_object> }`
-
-## **PATCH /products/:id**
-
-Updates fields on the specified product and returns the updated object.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**
-
-```
-  {
-  	name: string
-    cost: float(2)
-    available_quantity: integer
-  }
-```
-
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <product_object> }`
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Product doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-## **DELETE /products/:id**
-
-Deletes the specified product.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-  - **Code:** 204
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Product doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-#Orders
-
-- Order object
+- Commentt object
 
 ```
 {
-  id: integer
-  user_id: <user_id>
-  total: float(2)
-  products: [
-              {
-                product: <product_id>,
-                quantity: integer
-              },
-              {
-                product: <product_id>,
-                quantity: integer
-              },
-              {
-                product: <product_id>,
-                quantity: integer
-              },
-            ]
+  _id: ObjectId
+  userId: ObjectId,
+  videoId: ObjectId,
+  comment: string
   created_at: datetime(iso 8601)
   updated_at: datetime(iso 8601)
 }
 ```
 
-## **GET /orders**
+## **Get /comments/:videoId**
 
-Returns all users in the system.
+Retrieve last 10 comment on video
 
 - **URL Params**  
-  None
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json
+  Params: videoId
+  Query: page, limit
 - **Success Response:**
-- **Code:** 200  
-  **Content:**
-
 ```
 {
-  orders: [
-           {<order_object>},
-           {<order_object>},
-           {<order_object>}
-         ]
+  status: "Success",
+  statusCode: 200,
+  data: {
+    comments: [<last10Comment>]
+  }
 }
 ```
 
-## **GET /orders/:id**
+## **Post /comments**
 
-Returns the specified order.
+Retrieve all product inside video event
 
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
+- **URL Params**
   None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
+- **Body**
+  userId, videoId,
+  comment
 - **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <order_object> }`
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Order doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-## **GET /orders/:id/products**
-
-Returns all Products associated with the specified order.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-- **Code:** 200  
-  **Content:**
-
 ```
 {
-  products: [
-           {<product_object>},
-           {<product_object>},
-           {<product_object>}
-         ]
+  status: "Success",
+  statusCode: 200,
+  data: {
+    <new Added Comment>
+  }
 }
 ```
-
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Order doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-## **GET /orders/:id/user**
-
-Returns all Users associated with the specified order.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:** `{ <user_object> }`
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Order doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-## **POST /orders**
-
-Creates a new Order and returns the new object.
-
-- **URL Params**  
-  None
-- **Data Params**
-
-```
-  {
-  	user_id: <user_id>
-  	product: <product_id>,
-  	quantity: integer
-  }
-```
-
-- **Headers**  
-  Content-Type: application/json
-- **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <order_object> }`
-
-## **PATCH /orders/:id**
-
-Updates fields on the specified order and returns the updated object.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**
-
-```
-  {
-  	product: <product_id>,
-  	quantity: integer
-  }
-```
-
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-- **Code:** 200  
-  **Content:** `{ <order_object> }`
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Order doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
-
-## **DELETE /orders/:id**
-
-Deletes the specified order.
-
-- **URL Params**  
-  _Required:_ `id=[integer]`
-- **Data Params**  
-  None
-- **Headers**  
-  Content-Type: application/json  
-  Authorization: Bearer `<OAuth Token>`
-- **Success Response:**
-  - **Code:** 204
-- **Error Response:**
-  - **Code:** 404  
-    **Content:** `{ error : "Order doesn't exist" }`  
-    OR
-  - **Code:** 401  
-    **Content:** `{ error : error : "You are unauthorized to make this request." }`
