@@ -26,7 +26,8 @@ export async function addCommentValidate(data:any) {
             body: z.object({
                 videoId: z.string({required_error: 'Video ID is required'})
                     .uuid({ message:'Not a valid ID' }),
-                comment: z.string({ required_error: 'User ID is required', invalid_type_error: 'Comment must be string' })
+                userName: z.string({required_error: 'User Name is required'}),
+                comment: z.string({ required_error: 'Comment is required', invalid_type_error: 'Comment must be string' })
             })
         });
         await schema.parseAsync({body: data});

@@ -2,11 +2,10 @@ import DB from './db';
 import app from './app';
 import { createServer } from 'http';
 import config from './config/config.env';
+import SocketIOHandler from './websocket';
 
-
-const { port, env } = config;
+const { port, env, corsOrigin } = config;
 const server = createServer(app);
-
 
 function onError(error: any) {
     if (error.syscall !== 'listen')
@@ -39,6 +38,7 @@ server.on('error', onError);
 server.on('close', onClose);
 server.listen(port, async() => {
     console.log(`   App is live on localhost:${port} | env ${env}`);
+    SocketIOHandler(server, corsOrigin);
     const db = await DB.startConnection();
     if (!db) server.close();
 });

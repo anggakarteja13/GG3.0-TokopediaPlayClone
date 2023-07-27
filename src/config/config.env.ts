@@ -12,7 +12,8 @@ interface EnvConfigType {
         secretKey: string,
         expired: string
     }
-    port: number
+    port: number,
+    corsOrigin: string
 }
 
 export const config: EnvConfigType = {
@@ -26,7 +27,8 @@ export const config: EnvConfigType = {
         secretKey: String(process.env.JWT_SECRET_KEY),
         expired: String(process.env.JWT_EXPIRED) || "24h",
     },
-    port: Number(process.env.PORT) || 3000
+    port: Number(process.env.PORT) || 3000,
+    corsOrigin: String(process.env.ORIGIN) || '*'
 }
 
 export default config;

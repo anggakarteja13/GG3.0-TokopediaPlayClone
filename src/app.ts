@@ -3,9 +3,14 @@ import cookieParser from 'cookie-parser';
 import config from './config/config.env';
 import router from './routes/index';
 import logger from 'morgan';
+import cors from 'cors';
 
 const app = express();
-const { port, env } = config;
+const { port, env, corsOrigin } = config;
+const corsOptions = {
+    origin: corsOrigin,
+    methods: ['GET', 'POST'],
+};
 
 app.set('env', env);
 app.set('port', port);
@@ -13,6 +18,7 @@ app.set('port', port);
 app.use(logger('dev'));
 app.use(cookieParser());
 app.use(express.json());
+app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/v1', router);

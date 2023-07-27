@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import VideoServices from "../services/video";
 import CommentServices from "../services/comment";
-import { validateToken } from "../middleware/token";
 import { responseError, responseSuccess } from "../utils/response";
 import { addCommentValidate, getCommentListValidate } from "../middleware/comment";
 
@@ -23,24 +22,16 @@ export async function getCommentList(req: Request, res: Response) {
     }
 }
 
-export async function addComment(req: Request, res: Response) {
-    const reqData = req.body;
-    try {
-        const validateUser = await validateToken(req);
-        switch (validateUser) {
-            case 0:
-                return responseError(res, 401, 'No authorization');
-            case 1:
-                return responseError(res, 401, 'Invalid token');
-        }
+// export async function addComment(req: Request, res: Response) {
+//     const reqData = req.body;
+//     try {
+//         const validateData = await addCommentValidate(reqData);
+//         if (validateData !== true)
+//             return responseError(res, 400, validateData);
 
-        const validateData = await addCommentValidate(reqData);
-        if (validateData !== true)
-            return responseError(res, 400, validateData);
-
-        const newComment = await CommentServices.addComment(reqData, validateUser.id);
-        return responseSuccess(res, newComment);
-    } catch (error) {
-        return responseError(res, 500, error);
-    }
-}
+//         const newComment = await CommentServices.addComment(reqData);
+//         return responseSuccess(res, newComment);
+//     } catch (error) {
+//         return responseError(res, 500, error);
+//     }
+// }

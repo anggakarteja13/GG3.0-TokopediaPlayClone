@@ -1,8 +1,14 @@
 Postman -> https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay
 
-Postman ENV -> https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay/environment/15808237-cea1a1bb-b1ab-4f88-80e0-612fc9ba37b9
+Postman ENV -> https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay/environment/15808237-cea1a1bb-b1ab-4f88-80e0-
+
+BONUS:
+-search feature
+-user profile picture
+-websocket for comment
 
 #How To Run!!!
+
 - Clear your port & MongoDB connection
 - Clone this repository
 - Setup yarn (if not installed)
@@ -44,6 +50,7 @@ Give authorization to user.
 - **Headers**  
   Content-Type: application/json
 - **Success Response:**
+
 ```
 {
   status: "Success",
@@ -54,7 +61,9 @@ Give authorization to user.
   }
 }
 ```
+
 - **Error Response:**
+
 ```
 {
   status: "Error",
@@ -62,7 +71,9 @@ Give authorization to user.
   message: <Invalid input value>
 }
 ```
-  OR
+
+OR
+
 ```
 {
   status: "Error",
@@ -82,6 +93,7 @@ Add new user
 - **Headers**  
   Content-Type: application/json
 - **Success Response:**
+
 ```
 {
   status: "Success",
@@ -92,7 +104,9 @@ Add new user
   }
 }
 ```
+
 - **Error Response:**
+
 ```
 {
   status: "Error",
@@ -100,7 +114,6 @@ Add new user
   message: <Invalid Email or Password>
 }
 ```
-
 
 #Videos
 
@@ -129,6 +142,7 @@ Added pagination feature
 - **Headers**  
   Content-Type: application/json
 - **Success Response:**
+
 ```
 {
   status: "Success",
@@ -151,6 +165,7 @@ Add new video by Merchant only
   Content-Type: application/json
   Authorization: Bearer <jwtToken>
 - **Success Response:**
+
 ```
 {
   status: "Success",
@@ -162,7 +177,6 @@ Add new video by Merchant only
   }
 }
 ```
-
 
 #Products
 
@@ -189,6 +203,7 @@ Retrieve all product inside video event
   Params: videoId
   Query: page, limit
 - **Success Response:**
+
 ```
 {
   status: "Success",
@@ -211,6 +226,7 @@ Add new product for one video
   videoId, productUrl, imgUrl
   title, price
 - **Success Response:**
+
 ```
 {
   status: "Success",
@@ -220,7 +236,6 @@ Add new product for one video
   }
 }
 ```
-
 
 #Comments
 
@@ -245,6 +260,7 @@ Retrieve last 10 comment on video
   Params: videoId
   Query: page, limit
 - **Success Response:**
+
 ```
 {
   status: "Success",
@@ -265,6 +281,7 @@ Retrieve all product inside video event
   userId, videoId,
   comment
 - **Success Response:**
+
 ```
 {
   status: "Success",

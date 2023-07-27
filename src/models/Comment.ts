@@ -10,10 +10,9 @@ const CommentSchema = new Schema<CommentDocument>(
             default: uuidv4,
             index: true
         },
-        userId: {
+        userName: {
             type: String,
-            required: [true, 'Comment User ID is needed'],
-            ref: 'User'
+            required: [true, 'Comment User Name is needed']
         },
         videoId: {
             type: String,
