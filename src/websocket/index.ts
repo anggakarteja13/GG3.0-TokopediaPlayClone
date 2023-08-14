@@ -17,7 +17,7 @@ export default function SocketIOHandler (server: HTTPServer, corsOrigin: string)
             try {
                 socket.join(payload.room);
                 const comments = await CommentServices.getAllComment(payload.room);
-                io.to(socket.id).emit('comment', { comments, socketId: socket.id });
+                io.to(socket.id).emit('comment', comments);
             } catch (error) {
                 console.error(error);
             }
