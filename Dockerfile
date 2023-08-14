@@ -1,4 +1,4 @@
-ARG RAILWAY_ENVIRONMENT
+ARG EnvironmentVariable
 
 FROM node:18.16.0-alpine AS buildDeps
 WORKDIR /app
@@ -20,6 +20,7 @@ RUN yarn run seed
 
 FROM node:18.16.0-alpine AS runner
 WORKDIR /app
+ARG RAILWAY_ENVIRONMENT
 ENV RAILWAY_ENVIRONMENT=$RAILWAY_ENVIRONMENT
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
