@@ -1,35 +1,40 @@
-Postman -> https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay
+[Postman Collection](https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay)
 
-Postman ENV -> https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay/environment/15808237-cea1a1bb-b1ab-4f88-80e0-
+[Postman ENV](https://www.postman.com/spacecraft-observer-55350351/workspace/tokopediaplay/environment/15808237-cea1a1bb-b1ab-4f88-80e0-612fc9ba37b9?action=share&creator=15808237)
 
-BONUS:
--search feature
--user profile picture
--websocket for comment
+[Deployed BE](gg30-tokopediaplayclone-production.up.railway.app) on Railway
 
-#How To Run!!!
+## BONUS :
 
-- Clear your port & MongoDB connection
-- Clone this repository
+- Search video feature
+- User profile picture
+- SocketIO for comment
+
+## How To Run On Local!!!
+
+- Clear your port
+- Clone this repository on branch **main**
 - Setup yarn (if not installed)
-- Use NodeJS v18.16.0
-- create folder named **dist** on rootDir of project
-- set your **.env** according to **.env.example**
+- Set your **.env** according to **.env.example**
+- Start your docker service
 - Run on terminal :
-  - yarn install
-  - yarn build
-  - yarn seed
-  - yarn start
-- Look if there's any error on console
+  `docker compose up -d`
+- Look if there's any error on docker terminal
 - Try to hit with Postman (set your port on postman env)
 
-#Users
+## How To Run On Deployment
 
-- User object
+- Use URL of **gg30-tokopediaplayclone-production.up.railway.app**
+- Then hit it with postman
+
+# Users
+
+**User Scheme**
 
 ```
 {
   _id: ObjectId
+  id: uuid
   username: string
   email: string
   password: string
@@ -39,14 +44,14 @@ BONUS:
 }
 ```
 
-## **POST /users/login**
+## POST /users/login
 
 Give authorization to user.
 
 - **URL Params**  
   None
-- **Data Params**  
-  None
+- **Body**  
+  email, password
 - **Headers**  
   Content-Type: application/json
 - **Success Response:**
@@ -82,14 +87,14 @@ OR
 }
 ```
 
-## **POST /users/signup**
+## POST /users/signup
 
 Add new user
 
 - **URL Params**  
   None
-- **Data Params**  
-  None
+- **Body**  
+  email, password, userName, role
 - **Headers**  
   Content-Type: application/json
 - **Success Response:**
@@ -115,14 +120,15 @@ Add new user
 }
 ```
 
-#Videos
+# Videos
 
-- Video object
+**Video Scheme**
 
 ```
 {
   _id: ObjectId
-  userId: ObjectId
+  id: uuid
+  userId: uuid
   thumbnailUrl: string
   videoUrl: string
   title: string
@@ -131,14 +137,14 @@ Add new user
 }
 ```
 
-## **GET /videos?page=1&limit=10&search=Keyword**
+## GET /videos?page=1&limit=10&search=Keyword
 
 Returns all videos available
 Video can be search by title
 Added pagination feature
 
-- **URL Params**
-  Query: page, limit, search
+- **URL Params**  
+  Query (optional): page, limit, search
 - **Headers**  
   Content-Type: application/json
 - **Success Response:**
@@ -155,6 +161,24 @@ Added pagination feature
 }
 ```
 
+## GET /videos/:videoId
+
+Returns one video by videoId
+
+- **URL Params**  
+  Params: videoId
+- **Headers**  
+  Content-Type: application/json
+- **Success Response:**
+
+```
+{
+  status: "Success",
+  statusCode: 200,
+  data: {<videoData>}
+}
+```
+
 ## **POST /videos**
 
 Add new video by Merchant only
@@ -164,6 +188,8 @@ Add new video by Merchant only
 - **Headers**  
   Content-Type: application/json
   Authorization: Bearer <jwtToken>
+- **Body**  
+  thumbnailUrl, videoUrl, title
 - **Success Response:**
 
 ```
@@ -178,14 +204,15 @@ Add new video by Merchant only
 }
 ```
 
-#Products
+# Products
 
-- Product object
+**Product Scheme**
 
 ```
 {
   _id: ObjectId,
-  videoId: ObjectId,
+  id: uuid
+  videoId: uuid,
   productUrl: string,
   imgUrl: string,
   title: string,
@@ -195,13 +222,12 @@ Add new video by Merchant only
 }
 ```
 
-## **Get /products/:videoId**
+## GET /products/:productId
 
-Retrieve all product inside video event
+Get one product by productId
 
 - **URL Params**  
-  Params: videoId
-  Query: page, limit
+  Params: productId
 - **Success Response:**
 
 ```
@@ -216,13 +242,34 @@ Retrieve all product inside video event
 }
 ```
 
-## **Post /products**
+## GET /products/:videoId
+
+Retrieve all product inside video
+
+- **URL Params**  
+  Params: videoId  
+  Query (optional): page, limit
+- **Success Response:**
+
+```
+{
+  status: "Success",
+  statusCode: 200,
+  data: {
+    products: [<productData>],
+    currentPage: number,
+    totalPage: number
+  }
+}
+```
+
+## **POST /products**
 
 Add new product for one video
 
-- **URL Params**
+- **URL Params**  
   None
-- **Body**
+- **Body**  
   videoId, productUrl, imgUrl
   title, price
 - **Success Response:**
@@ -237,57 +284,58 @@ Add new product for one video
 }
 ```
 
-#Comments
+# Comments
 
-- Commentt object
+**Comment Scheme**
 
 ```
 {
   _id: ObjectId
-  userId: ObjectId,
-  videoId: ObjectId,
+  id: uuid
+  userName: string
+  videoId: uuid
   comment: string
   created_at: datetime(iso 8601)
   updated_at: datetime(iso 8601)
 }
 ```
 
-## **Get /comments/:videoId**
+## SocketIO GET Comment List
 
-Retrieve last 10 comment on video
+Get last 10 comments
 
-- **URL Params**  
-  Params: videoId
-  Query: page, limit
+- **Event name**  
+  get_comment
+- **Message**  
+  room
 - **Success Response:**
 
 ```
 {
-  status: "Success",
-  statusCode: 200,
-  data: {
-    comments: [<last10Comment>]
-  }
+  comments: [<last10Comment>]
 }
 ```
 
-## **Post /comments**
+## SocketIO POST Comment
 
-Retrieve all product inside video event
+Send comment
 
-- **URL Params**
-  None
-- **Body**
-  userId, videoId,
+- **Event name**  
+  send_comment
+- **Message**  
+  room, userName, comment
+- **Success Response:**
+
+```
+{
+  userName,
   comment
-- **Success Response:**
-
-```
-{
-  status: "Success",
-  statusCode: 200,
-  data: {
-    <new Added Comment>
-  }
 }
 ```
+
+## SocketIO GET Leave Room
+
+User disconnect
+
+- **Event name**  
+  leave_room
