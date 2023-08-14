@@ -20,7 +20,6 @@ FROM node:18.16.0-alpine AS runner
 WORKDIR /app
 ARG RAILWAY_ENVIRONMENT
 ENV NODE_ENV=$RAILWAY_ENVIRONMENT
-RUN 'echo ${NODE_ENV}'
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
 COPY --from=prodDeps /app/node_modules ./node_modules
